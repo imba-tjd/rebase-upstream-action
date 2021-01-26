@@ -15,7 +15,7 @@ Basically this is doing `git rebase upstream master`. If there are conflicts, it
 name: Rebase Upstream
 on:
   schedule:
-  - cron: "0 0 * * *"
+  - cron: "0 0 * * 0"  # run once a week
 
 jobs:
   sync:
