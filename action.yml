@@ -1,0 +1,46 @@
+name: Rebase Upstream
+description: Use git rebase to sync with upstream
+author: imba-tjd
+branding:
+  icon: git-pull-request
+  color: red
+
+inputs:
+  upstream:
+    description: The full HTTPS upstream URL.
+    required: true
+  branch:
+    description: The upstream branch that is rebased on.
+    required: false
+    default: master
+  depth:
+    description: The fetch depth
+    required: false
+    default: 100
+outputs:
+  needs-push:
+    description: Whether push is needed.
+    value: ${{ steps.set-output.outputs.needs-push }}
+runs:
+  using: composite
+  steps:
+    - run: |
+        echo adding ${{ inputs.upstream }} && \
+        git remote add upstream ${{ inputs.upstream }};
+
+        echo fetching... && \
+        git fetch upstream --depth=${{ inputs.depth }};
+
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com";
+        git config --local user.name "GitHub Action";
+
+        echo rebasing... && \
+        git rebase upstream/${{ inputs.branch }};
+      shell: bash
+    - id: set-output
+      shell: bash
+      run: |
+        if [ "$(git status | grep diverged)" ]; then
+          echo push is needed.
+          echo ::set-output name=needs-push::1
+        fi;
