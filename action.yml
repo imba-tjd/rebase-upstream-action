@@ -21,6 +21,7 @@ outputs:
   needs-push:
     description: Whether push is needed.
     value: ${{ steps.set-output.outputs.needs-push }}
+
 runs:
   using: composite
   steps:
