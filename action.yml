@@ -3,7 +3,7 @@ description: Use git rebase to sync with upstream
 author: imba-tjd
 branding:
   icon: git-pull-request
-  color: red
+  color: green
 
 inputs:
   upstream:
