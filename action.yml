@@ -26,16 +26,15 @@ runs:
   using: composite
   steps:
     - run: |
-        echo adding ${{ inputs.upstream }} && \
+        set -ex;
+
         git remote add upstream ${{ inputs.upstream }};
 
-        echo fetching... && \
         git fetch upstream ${{ inputs.branch }} --depth=${{ inputs.depth }};
 
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com";
         git config --local user.name "GitHub Action";
 
-        echo rebasing... && \
         git rebase upstream/${{ inputs.branch }};
       shell: bash
     - id: set-output
