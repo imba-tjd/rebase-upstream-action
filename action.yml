@@ -7,20 +7,16 @@ branding:
 
 inputs:
   upstream:
-    description: The full HTTPS upstream URL.
-    required: true
+    description: <user>/<repo>
+    required: false
   branch:
-    description: The upstream branch that is rebased on.
+    description: The upstream branch that is rebased on
     required: false
     default: master
   depth:
     description: The fetch depth
     required: false
     default: 100
-outputs:
-  needs-push:
-    description: Whether push is needed.
-    value: ${{ steps.set-output.outputs.needs-push }}
 
 runs:
   using: composite
@@ -28,19 +24,23 @@ runs:
     - run: |
         set -ex;
 
-        git remote add upstream ${{ inputs.upstream }};
+        UPSTREAM=${{ inputs.upstream }};
+        if [ -z $UPSTREAM ]; then
+            echo ${{ inputs.token }} | gh auth login --with-token;
+            UPSTREAM=$(a.json | jq .parent.full_name);
+            if [ -z $UPSTREAM ]; then echo "Can't find upstream" && exit 1; fi;
+        fi;
+
+        git remote add upstream https://github.com/$UPSTREAM.git;
 
         git fetch upstream ${{ inputs.branch }} --depth=${{ inputs.depth }};
 
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com";
-        git config --local user.name "GitHub Action";
+        git config --local user.name  "GitHub Actions";
 
         git rebase upstream/${{ inputs.branch }};
-      shell: bash
-    - id: set-output
-      shell: bash
-      run: |
+
         if [ "$(git status | grep diverged)" ]; then
-          echo push is needed.
-          echo ::set-output name=needs-push::1
+          git push origin $(git branch --show-current) --force-with-lease;
         fi;
+      shell: bash
