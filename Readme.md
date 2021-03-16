@@ -26,7 +26,7 @@ jobs:
       with:
         fetch-depth: 10  # greater than the number of commits you made
     - uses: imba-tjd/rebase-upstream-action@master
-      # with:  # All args are optional
+      # with:  # all args are optional
       #   upstream: <user>/<repo>
       #   branch:   master
 ```
