@@ -33,8 +33,9 @@ runs:
         set -ex;
 
         UPSTREAM=${{ inputs.upstream }};
+        GITHUB_TOKEN=${{ inputs.token }};
         if [ -z $UPSTREAM ]; then
-            echo ${{ inputs.token }} | gh auth login --with-token;
+            echo GITHUB_TOKEN | gh auth login --with-token;
             UPSTREAM=$(gh api repos/:owner/:repo --jq .parent.full_name);
             if [ -z $UPSTREAM ]; then echo "Can't find upstream" >&2 && exit 1; fi;
         fi;
@@ -51,11 +52,11 @@ runs:
 
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com";
         git config --local user.name  "GitHub Actions";
-        git config --local user.password ${{ inputs.token }}
 
         git rebase upstream/${{ inputs.branch }};
 
         if [ "${{ inputs.push }}" = "true" -a "$(git status | grep diverged)" ]; then
-            git push origin $(git branch --show-current) --force-with-lease;
+            ORIGIN_URL=${`git remote get-url origin`/https:\/\//https:\/\/$GITHUB_TOKEN@}
+            git push $ORIGIN_URL $(git branch --show-current) --force-with-lease;
         fi;
       shell: bash
