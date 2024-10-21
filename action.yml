@@ -21,6 +21,10 @@ inputs:
     description: Do the force push in this action
     required: false
     default:  true
+  token:
+    description: GitHub token to access to API and git
+    required: false
+    default: ${{ github.token }}
 
 runs:
   using: composite
@@ -30,7 +34,7 @@ runs:
 
         UPSTREAM=${{ inputs.upstream }};
         if [ -z $UPSTREAM ]; then
-            echo ${{ github.token }} | gh auth login --with-token;
+            echo ${{ inputs.token }} | gh auth login --with-token;
             UPSTREAM=$(gh api repos/:owner/:repo --jq .parent.full_name);
             if [ -z $UPSTREAM ]; then echo "Can't find upstream" >&2 && exit 1; fi;
         fi;
