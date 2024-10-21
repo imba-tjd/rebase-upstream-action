@@ -21,6 +21,10 @@ inputs:
     description: Do the force push in this action
     required: false
     default:  true
+  token:
+    description: GitHub token to access to API and git
+    required: false
+    default: ${{ github.token }}
 
 runs:
   using: composite
@@ -29,8 +33,9 @@ runs:
         set -ex;
 
         UPSTREAM=${{ inputs.upstream }};
+        GITHUB_TOKEN=${{ inputs.token }};
         if [ -z $UPSTREAM ]; then
-            echo ${{ github.token }} | gh auth login --with-token;
+            echo GITHUB_TOKEN | gh auth login --with-token;
             UPSTREAM=$(gh api repos/:owner/:repo --jq .parent.full_name);
             if [ -z $UPSTREAM ]; then echo "Can't find upstream" >&2 && exit 1; fi;
         fi;
@@ -51,6 +56,7 @@ runs:
         git rebase upstream/${{ inputs.branch }};
 
         if [ "${{ inputs.push }}" = "true" -a "$(git status | grep diverged)" ]; then
-            git push origin $(git branch --show-current) --force-with-lease;
+            ORIGIN_URL=$(git remote get-url origin);
+            git push "${ORIGIN_URL/https:\/\//https:\/\/$GITHUB_TOKEN@}" $(git branch --show-current) --force-with-lease;
         fi;
       shell: bash
