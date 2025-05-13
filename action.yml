@@ -57,6 +57,8 @@ runs:
 
         if [ "${{ inputs.push }}" = "true" -a "$(git status | grep diverged)" ]; then
             ORIGIN_URL=$(git remote get-url origin);
-            git push "${ORIGIN_URL/https:\/\//https:\/\/$GITHUB_TOKEN@}" $(git branch --show-current) --force-with-lease;
+            git remote set-url origin "${ORIGIN_URL/https:\/\//https:\/\/$GITHUB_TOKEN@}"
+            git fetch origin $(git branch --show-current)
+            git push origin $(git branch --show-current) --force-with-lease;
         fi;
       shell: bash
